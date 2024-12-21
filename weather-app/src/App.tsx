@@ -1,70 +1,25 @@
-import React, { useState } from 'react';
-import Header from './components/Header';
-import LocationSelector from './components/LocationSelector';
-import WeatherCard from './components/WeatherCard';
+import React from 'react';
 
-const App: React.FC = () => {
-  const [location, setLocation] = useState('');
-
+/**
+ * The Header component renders the static title of the app.
+ */
+const Header: React.FC = () => {
   return (
-    <div
+    <header
       style={{
-        backgroundColor: '#333',
-        minHeight: '100vh',
-        color: '#fff',
-        display: 'flex',
-        flexDirection: 'column',
+        backgroundColor: '#1e1e1e', // Dark background for contrast
+        color: '#fff', // White text for readability
+        width: '100%', // Ensure the header spans the full width
+        padding: '1rem', // Padding around the header content
+        textAlign: 'center', // Center the title text
+        fontSize: '1.5rem', // Font size for emphasis
+        fontWeight: 'bold', // Bold font style for visual impact
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow for a modern look
       }}
     >
-      {/* Header */}
-      <Header />
-
-      {/* Main Content */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column', // For mobile view
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '1rem',
-          gap: '2rem', // Adds spacing between children
-        }}
-      >
-        {/* Location Selector */}
-        <LocationSelector onLocationSet={setLocation} />
-
-        {/* Weather Card */}
-        {location && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row', // Arrange in row for larger screens
-              justifyContent: 'space-evenly',
-              alignItems: 'center',
-              width: '100%', // Stretch to fill the container
-              gap: '2rem',
-            }}
-          >
-            <WeatherCard
-              title="This Friday"
-              icon="/sunny.png"
-              temperature="72°F"
-              wind="10 mph"
-              rain="0%"
-            />
-            <WeatherCard
-              title="Next Friday"
-              icon="/cloudy.png"
-              temperature="68°F"
-              wind="12 mph"
-              rain="20%"
-            />
-          </div>
-        )}
-      </div>
-    </div>
+      Weather App
+    </header>
   );
 };
 
-export default App;
+export default Header;
