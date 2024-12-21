@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Header from './components/Header';
-import LocationSelector from './components/LocationSelector';
+import WeatherCard from './components/WeatherCard';
 
 const App: React.FC = () => {
-  const [location, setLocation] = useState('');
-
   return (
     <div>
       <Header />
-      <LocationSelector onLocationSet={setLocation} />
-      {location && <p>Selected Location: {location}</p>}
+      <WeatherCard
+        title="This Friday"
+        icon="/sunny.png"
+        temperature="72°F"
+        wind="10 mph"
+        rain="0%"
+      />
     </div>
   );
 };
