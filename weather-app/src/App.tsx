@@ -1,3 +1,4 @@
+// src/App.tsx
 import React, { useState } from 'react';
 import Header from './components/Header';
 import LocationSelector from './components/LocationSelector';
@@ -5,7 +6,7 @@ import DayTimeSelector from './components/DayTimeSelector';
 import WeatherSection from './components/WeatherSection';
 import { useWeatherData } from './hooks/useWeatherData';
 import { getDateForDay } from './utils/dateHelpers';
-import { IconButton } from '@mui/material';
+import { IconButton, Grid, Box, Typography, CircularProgress, Alert } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
@@ -49,154 +50,149 @@ const App: React.FC = () => {
     }
   };
 
-  const styles: { [key: string]: React.CSSProperties } = {
-    appContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5',
-      color: '#333',
-      padding: '2rem',
-    },
-    selectorsContainer: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      width: '100%',
-      maxWidth: '800px',
-      margin: '2rem auto',
-      gap: '2rem',
-    },
-    selectedLocation: {
-      marginTop: '1rem',
-      fontSize: '1rem',
-    },
-    loadingContainer: {
-      display: 'flex',
-      height: '50vh',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-    },
-    errorContainer: {
-      display: 'flex',
-      height: '50vh',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-      color: 'red',
-    },
-    weatherSectionContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-      position: 'relative',
-      marginTop: '2rem',
-    },
-    weatherSections: {
-      display: 'flex',
-      gap: '2rem',
-      overflow: 'hidden',
-      width: '100%',
-      justifyContent: 'center',
-    },
-    noData: {
-      width: '300px',
-      height: '400px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      border: '1px solid #ccc',
-      borderRadius: '8px',
-      backgroundColor: '#f5f5f5',
-    },
-    arrowButton: {
-      position: 'absolute',
-      zIndex: 10,
-    },
-    leftArrow: {
-      left: '1rem',
-    },
-    rightArrow: {
-      right: '1rem',
-    },
-  };
-
   return (
-    <div style={styles.appContainer}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+        color: '#333',
+        padding: '2rem',
+      }}
+    >
       <Header />
 
       {/* Wrapper for LocationSelector and DayTimeSelector */}
-      <div style={styles.selectorsContainer}>
-        <LocationSelector onLocationSet={setLocation} />
-        <DayTimeSelector selection={selection} onSelectionChange={setSelection} />
-      </div>
+      <Grid
+        container
+        spacing={4}
+        sx={{
+          width: '100%',
+          maxWidth: '800px',
+          margin: '2rem auto',
+        }}
+      >
+        <Grid item xs={12} md={6}>
+          <LocationSelector onLocationSet={setLocation} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <DayTimeSelector selection={selection} onSelectionChange={setSelection} />
+        </Grid>
+      </Grid>
 
-      <p style={styles.selectedLocation}>
+      <Typography variant="body1" sx={{ marginTop: '1rem' }}>
         Selected location: {location || 'None'}
-      </p>
+      </Typography>
 
       {isLoading && (
-        <div style={styles.loadingContainer}>
-          <p>Loading weather data...</p>
-        </div>
+        <Box
+          sx={{
+            display: 'flex',
+            height: '50vh',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <CircularProgress />
+          <Typography variant="h6" sx={{ marginLeft: '1rem' }}>
+            Loading weather data...
+          </Typography>
+        </Box>
       )}
 
       {error && (
-        <div style={styles.errorContainer}>
-          <p>Error fetching weather data. Please try again later.</p>
-        </div>
+        <Box
+          sx={{
+            display: 'flex',
+            height: '50vh',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <Alert severity="error">Error fetching weather data. Please try again later.</Alert>
+        </Box>
       )}
 
       {location && data && (
-        <div style={styles.weatherSectionContainer}>
-          {/* Left Arrow */}
-          <IconButton
-            onClick={() => handleScroll('left')}
-            disabled={currentIndex === 0}
-            style={{ ...styles.arrowButton, ...styles.leftArrow }}
-          >
-            <ArrowBackIosIcon />
-          </IconButton>
+        <Box sx={{ width: '100%', maxWidth: '1200px', marginTop: '2rem' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+            {/* Left Arrow */}
+            <IconButton
+              onClick={() => handleScroll('left')}
+              disabled={currentIndex === 0}
+              sx={{
+                position: 'absolute',
+                left: '0',
+                zIndex: 10,
+              }}
+            >
+              <ArrowBackIosIcon />
+            </IconButton>
 
-          {/* Weather Sections */}
-          <div style={styles.weatherSections}>
-            {dates.slice(currentIndex, currentIndex + 2).map((date, index) => {
-              const dayData = findDailyData(date);
-              return dayData ? (
-                <WeatherSection
-                  key={index}
-                  title={`${
-                    selection.day
-                  } (${index === 0 ? `${currentIndex * 7} Days Later` : `${
-                    (currentIndex + 1) * 7
-                  } Days Later`})`}
-                  dayData={dayData}
-                  timeRange={selection.timeRange}
-                />
-              ) : (
-                <div style={styles.noData} key={index}>
-                  <p>No Data Available</p>
-                </div>
-              );
-            })}
-          </div>
+            {/* Weather Sections */}
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '2rem',
+                overflow: 'hidden',
+                width: '100%',
+                justifyContent: 'center',
+              }}
+            >
+              {dates.slice(currentIndex, currentIndex + 2).map((date, index) => {
+                const dayData = findDailyData(date);
+                return dayData ? (
+                  <WeatherSection
+                    key={index}
+                    title={`${
+                      selection.day
+                    } (${index === 0 ? `${currentIndex * 7} Days Later` : `${
+                      (currentIndex + 1) * 7
+                    } Days Later`})`}
+                    dayData={dayData}
+                    timeRange={selection.timeRange}
+                  />
+                ) : (
+                  <Box
+                    key={index}
+                    sx={{
+                      width: '300px',
+                      height: '400px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px solid #ccc',
+                      borderRadius: '8px',
+                      backgroundColor: '#f5f5f5',
+                    }}
+                  >
+                    <Typography>No Data Available</Typography>
+                  </Box>
+                );
+              })}
+            </Box>
 
-          {/* Right Arrow */}
-          <IconButton
-            onClick={() => handleScroll('right')}
-            disabled={currentIndex >= dateOffsets.length - 2}
-            style={{ ...styles.arrowButton, ...styles.rightArrow }}
-          >
-            <ArrowForwardIosIcon />
-          </IconButton>
-        </div>
+            {/* Right Arrow */}
+            <IconButton
+              onClick={() => handleScroll('right')}
+              disabled={currentIndex >= dateOffsets.length - 2}
+              sx={{
+                position: 'absolute',
+                right: '0',
+                zIndex: 10,
+              }}
+            >
+              <ArrowForwardIosIcon />
+            </IconButton>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

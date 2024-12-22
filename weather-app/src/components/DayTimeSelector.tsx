@@ -1,5 +1,6 @@
 // src/components/DayTimeSelector.tsx
 import React from 'react';
+import { Box, FormControl, InputLabel, Select, MenuItem, Typography, SelectChangeEvent } from '@mui/material';
 
 interface Selection {
   day: string;
@@ -12,57 +13,82 @@ interface DayTimeSelectorProps {
 }
 
 const DayTimeSelector: React.FC<DayTimeSelectorProps> = ({ selection, onSelectionChange }) => {
-  const handleDayChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleDayChange = (event: SelectChangeEvent<string>) => {
     const day = event.target.value;
     onSelectionChange({ ...selection, day });
   };
 
-  const handleTimeRangeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleTimeRangeChange = (event: SelectChangeEvent<string>) => {
     const timeRange = event.target.value as 'morning' | 'afternoon' | 'evening';
     onSelectionChange({ ...selection, timeRange });
   };
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: 'flex',
         flexDirection: 'column',
         gap: '1rem',
-        width: '100%',
-        maxWidth: '300px',
-        margin: '1rem auto',
+        padding: '2rem',
+        background: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
       }}
     >
-      <label htmlFor="day-select" style={{ fontSize: '1rem' }}>
-        Select Day:
-      </label>
-      <select id="day-select" value={selection.day} onChange={handleDayChange} style={selectStyle}>
-        <option value="Monday">Monday</option>
-        <option value="Tuesday">Tuesday</option>
-        <option value="Wednesday">Wednesday</option>
-        <option value="Thursday">Thursday</option>
-        <option value="Friday">Friday</option>
-        <option value="Saturday">Saturday</option>
-        <option value="Sunday">Sunday</option>
-      </select>
+      {/* Select Day */}
+      <FormControl fullWidth>
+        <InputLabel id="day-select-label">Select Day</InputLabel>
+        <Select
+          labelId="day-select-label"
+          id="day-select"
+          value={selection.day}
+          label="Select Day"
+          onChange={handleDayChange}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '8px',
+            },
+          }}
+        >
+          <MenuItem value="">
+            <em>-- Choose a day --</em>
+          </MenuItem>
+          <MenuItem value="Monday">Monday</MenuItem>
+          <MenuItem value="Tuesday">Tuesday</MenuItem>
+          <MenuItem value="Wednesday">Wednesday</MenuItem>
+          <MenuItem value="Thursday">Thursday</MenuItem>
+          <MenuItem value="Friday">Friday</MenuItem>
+          <MenuItem value="Saturday">Saturday</MenuItem>
+          <MenuItem value="Sunday">Sunday</MenuItem>
+        </Select>
+      </FormControl>
 
-      <label htmlFor="time-range-select" style={{ fontSize: '1rem' }}>
-        Select Time Range:
-      </label>
-      <select id="time-range-select" value={selection.timeRange} onChange={handleTimeRangeChange} style={selectStyle}>
-        <option value="morning">Morning</option>
-        <option value="afternoon">Afternoon</option>
-        <option value="evening">Evening</option>
-      </select>
-    </div>
+      {/* Select Time Range */}
+      <FormControl fullWidth>
+        <InputLabel id="time-range-select-label">Select Time Range</InputLabel>
+        <Select
+          labelId="time-range-select-label"
+          id="time-range-select"
+          value={selection.timeRange}
+          label="Select Time Range"
+          onChange={handleTimeRangeChange}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '8px',
+            },
+          }}
+        >
+          <MenuItem value="">
+            <em>-- Choose a time range --</em>
+          </MenuItem>
+          <MenuItem value="morning">Morning</MenuItem>
+          <MenuItem value="afternoon">Afternoon</MenuItem>
+          <MenuItem value="evening">Evening</MenuItem>
+        </Select>
+      </FormControl>
+    </Box>
   );
-};
-
-const selectStyle: React.CSSProperties = {
-  padding: '0.5rem',
-  borderRadius: '4px',
-  border: '1px solid #ccc',
-  fontSize: '1rem',
 };
 
 export default DayTimeSelector;

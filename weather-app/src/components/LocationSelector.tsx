@@ -1,4 +1,6 @@
+// src/components/LocationSelector.tsx
 import React, { useState } from 'react';
+import { Box, TextField, Button, Typography } from '@mui/material';
 
 interface Props {
   onLocationSet: (location: string) => void; // Callback to set location in the parent component
@@ -7,42 +9,6 @@ interface Props {
 const LocationSelector: React.FC<Props> = ({ onLocationSet }) => {
   const [location, setLocation] = useState<string>(''); // Local state to manage the input value
   const [successMessage, setSuccessMessage] = useState<string>('');
-
-  const styles: { [key: string]: React.CSSProperties } = {
-    container: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '0.5rem',
-      width: '100%',
-      maxWidth: '300px',
-      margin: '2rem auto',
-    },
-    label: {
-      fontSize: '1rem',
-    },
-    input: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ccc',
-      width: '100%',
-      fontSize: '1rem',
-    },
-    button: {
-      padding: '0.5rem 1rem',
-      border: 'none',
-      backgroundColor: '#007BFF',
-      color: '#fff',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-    },
-    successMessage: {
-      color: 'green',
-      fontSize: '0.9rem',
-      marginTop: '0.5rem',
-    },
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault(); // Prevent default form submission behavior
@@ -58,25 +24,68 @@ const LocationSelector: React.FC<Props> = ({ onLocationSet }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={styles.container}>
-      <label htmlFor="location-input" style={styles.label}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+        padding: '2rem',
+        background: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        fontFamily: `'Segoe UI', Tahoma, Geneva, Verdana, sans-serif`,
+      }}
+    >
+      <Typography variant="h6" sx={{ color: '#333' }}>
         Enter Location:
-      </label>
-      <input
+      </Typography>
+      <TextField
         id="location-input"
-        aria-label="Enter your location"
-        type="text"
+        label="Location"
+        variant="outlined"
         value={location}
-        onChange={(e) => setLocation(e.target.value)} // Update the local state as the user types
+        onChange={(e) => setLocation(e.target.value)}
         placeholder="e.g., New York"
-        style={styles.input}
         required
+        fullWidth
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
+          },
+        }}
       />
-      <button type="submit" style={styles.button}>
+      <Button
+        type="submit"
+        variant="contained"
+        sx={{
+          background: 'linear-gradient(90deg, #4facfe, #00f2fe)',
+          color: '#fff',
+          borderRadius: '8px',
+          padding: '0.75rem 1.5rem',
+          fontSize: '1rem',
+          fontWeight: '600',
+          textTransform: 'none',
+          '&:hover': {
+            background: 'linear-gradient(90deg, #00f2fe, #4facfe)',
+          },
+        }}
+      >
         Set Location
-      </button>
-      {successMessage && <p style={styles.successMessage}>{successMessage}</p>}
-    </form>
+      </Button>
+      {successMessage && (
+        <Typography
+          variant="body2"
+          sx={{
+            color: successMessage === 'Location set successfully!' ? 'green' : 'red',
+            fontSize: '0.9rem',
+          }}
+        >
+          {successMessage}
+        </Typography>
+      )}
+    </Box>
   );
 };
 
