@@ -9,11 +9,11 @@ import { useWeatherData } from './hooks/useWeatherData';
 const App: React.FC = () => {
   const [location, setLocation] = useState(''); // Location input
   const [selection, setSelection] = useState<{ day: string; timeRange: 'morning' | 'afternoon' | 'evening' }>({
-    day: 'This Friday',
+    day: 'Friday',
     timeRange: 'afternoon',
   });
 
-  // Fetch weather data using the custom hook (only fetch when location is not empty)
+  // Fetch weather data using the custom hook
   const { data, isLoading, error } = useWeatherData(location);
 
   // Helper function to filter hourly data based on the selected time range
@@ -35,6 +35,10 @@ const App: React.FC = () => {
     };
   };
 
+  // Handle loading and error states
+  if (isLoading) return <p>Loading weather data...</p>;
+  if (error || !data) return <p>Error fetching weather data. Please try again later.</p>;
+
   return (
     <div
       style={{
@@ -54,36 +58,31 @@ const App: React.FC = () => {
       {/* Location Input */}
       <LocationSelector onLocationSet={setLocation} />
 
+      {/* Time Range Selector */}
+      <DayTimeSelector
+        onSelectionChange={(newSelection) => setSelection(newSelection)} // Update both day and timeRange
+      />
+
       <p style={{ marginTop: '1rem', fontSize: '1rem' }}>
         Selected location: {location || 'None'}
       </p>
 
-      {/* Display error messages if there's an issue */}
-      {error && <p style={{ color: 'red' }}>Error fetching weather data: {error.message}</p>}
-
-      {/* Time Range Selector */}
-      <DayTimeSelector
-        onSelectionChange={(newSelection) =>
-          setSelection((prev) => ({ ...prev, timeRange: newSelection.timeRange }))
-        }
-      />
-
       {/* Weather Data Section */}
-      {location && !isLoading && data && (
+      {location && data && (
         <div
           style={{
             display: 'flex',
-            flexDirection: 'row', // Align "This Friday" and "Next Friday" sections horizontally
+            flexDirection: 'row', // Align "This Day" and "Next Day" sections horizontally
             gap: '2rem',
             marginTop: '2rem',
             justifyContent: 'center',
             width: '100%',
           }}
         >
-          {/* This Friday Section */}
+          {/* This Day Section */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <WeatherCard
-              title="This Friday"
+              title={`This ${selection.day}`}
               temperature={`${data.daily[0]?.temperature ?? 'N/A'}°F`}
               wind={`${data.daily[0]?.wind ?? 'N/A'} mph`}
               rain={`${data.daily[0]?.rainChance ?? 'N/A'}%`}
@@ -91,10 +90,10 @@ const App: React.FC = () => {
             <WeatherChart data={filterHourlyData(selection.timeRange)} />
           </div>
 
-          {/* Next Friday Section */}
+          {/* Next Day Section */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <WeatherCard
-              title="Next Friday"
+              title={`Next ${selection.day}`}
               temperature={`${data.daily[1]?.temperature ?? 'N/A'}°F`}
               wind={`${data.daily[1]?.wind ?? 'N/A'} mph`}
               rain={`${data.daily[1]?.rainChance ?? 'N/A'}%`}
@@ -103,9 +102,6 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Show loading spinner when fetching data */}
-      {isLoading && <p>Loading weather data...</p>}
     </div>
   );
 };
