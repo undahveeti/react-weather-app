@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { IconButton, Drawer, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { IconButton, Drawer, List, ListItem, ListItemText, Divider, useMediaQuery } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 const Header: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)'); // Mobile breakpoint
 
-  // Toggle menu drawer open/close
   const toggleMenu = (open: boolean) => (event: React.MouseEvent | React.KeyboardEvent) => {
     if (
       event.type === 'keydown' &&
@@ -40,17 +42,38 @@ const Header: React.FC = () => {
           Weather IO
         </div>
 
-        {/* Hamburger Menu */}
-        <IconButton
-          aria-label="menu"
-          onClick={toggleMenu(true)}
-          style={{ color: '#fff' }}
-        >
-          <MenuIcon />
-        </IconButton>
+        {/* Right Section (Responsive) */}
+        {isMobile ? (
+          // Hamburger Menu for Mobile
+          <IconButton
+            aria-label="menu"
+            onClick={toggleMenu(true)}
+            style={{ color: '#fff' }}
+          >
+            <MenuIcon />
+          </IconButton>
+        ) : (
+          // Buttons for Desktop
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <IconButton
+              aria-label="help"
+              style={{ color: '#fff' }}
+              onClick={() => alert('Help Clicked!')}
+            >
+              <HelpOutlineIcon />
+            </IconButton>
+            <IconButton
+              aria-label="sign out"
+              style={{ color: '#fff' }}
+              onClick={() => alert('Sign Out Clicked!')}
+            >
+              <ExitToAppIcon />
+            </IconButton>
+          </div>
+        )}
       </header>
 
-      {/* Drawer for Menu */}
+      {/* Drawer for Mobile Menu */}
       <Drawer anchor="right" open={menuOpen} onClose={toggleMenu(false)}>
         <div
           style={{
@@ -64,7 +87,6 @@ const Header: React.FC = () => {
           onClick={toggleMenu(false)}
           onKeyDown={toggleMenu(false)}
         >
-          {/* Menu Items */}
           <List>
             {/* Help Option */}
             <ListItem component="button" onClick={() => alert('Help Clicked!')}>
