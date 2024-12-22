@@ -13,7 +13,7 @@ const App: React.FC = () => {
     timeRange: 'afternoon',
   });
 
-  // Fetch weather data using the custom hook
+  // Fetch weather data using the custom hook (only fetch when location is not empty)
   const { data, isLoading, error } = useWeatherData(location);
 
   // Helper function to filter hourly data based on the selected time range
@@ -35,10 +35,6 @@ const App: React.FC = () => {
     };
   };
 
-  // Handle loading and error states
-  if (isLoading) return <p>Loading weather data...</p>;
-  if (error || !data) return <p>Error fetching weather data. Please try again later.</p>;
-
   return (
     <div
       style={{
@@ -58,6 +54,13 @@ const App: React.FC = () => {
       {/* Location Input */}
       <LocationSelector onLocationSet={setLocation} />
 
+      <p style={{ marginTop: '1rem', fontSize: '1rem' }}>
+        Selected location: {location || 'None'}
+      </p>
+
+      {/* Display error messages if there's an issue */}
+      {error && <p style={{ color: 'red' }}>Error fetching weather data: {error.message}</p>}
+
       {/* Time Range Selector */}
       <DayTimeSelector
         onSelectionChange={(newSelection) =>
@@ -65,12 +68,8 @@ const App: React.FC = () => {
         }
       />
 
-      <p style={{ marginTop: '1rem', fontSize: '1rem' }}>
-        Selected location: {location || 'None'}
-      </p>
-
       {/* Weather Data Section */}
-      {location && data && (
+      {location && !isLoading && data && (
         <div
           style={{
             display: 'flex',
@@ -104,6 +103,9 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Show loading spinner when fetching data */}
+      {isLoading && <p>Loading weather data...</p>}
     </div>
   );
 };
