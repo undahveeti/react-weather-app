@@ -1,64 +1,79 @@
 import React, { useState } from 'react';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 interface CarouselProps {
-  children: React.ReactNode[];
+  children: React.ReactNode[]; // Array of WeatherSections
 }
 
 const Carousel: React.FC<CarouselProps> = ({ children }) => {
-  const [visibleIndex, setVisibleIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const handleScrollLeft = () => {
-    setVisibleIndex((prev) => Math.max(0, prev - 1));
+  const handleNext = () => {
+    if (currentIndex < children.length - 2) {
+      setCurrentIndex((prev) => prev + 1);
+    }
   };
 
-  const handleScrollRight = () => {
-    setVisibleIndex((prev) => Math.min(children.length - 2, prev + 1)); // Show two at a time
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((prev) => prev - 1);
+    }
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        maxWidth: '800px',
+        margin: '0 auto',
+      }}
+    >
+      {/* Left Arrow */}
       <button
-        onClick={handleScrollLeft}
+        onClick={handlePrev}
         style={{
-          position: 'absolute',
-          left: '0',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 10,
+          border: 'none',
+          background: 'none',
+          cursor: 'pointer',
         }}
+        disabled={currentIndex === 0}
       >
-        &lt;
+        <ArrowBackIosIcon fontSize="large" />
       </button>
 
+      {/* Render Two Sections */}
       <div
         style={{
           display: 'flex',
-          transform: `translateX(-${visibleIndex * 50}%)`,
-          transition: 'transform 0.5s ease-in-out',
-          width: `${children.length * 50}%`,
+          flexDirection: 'row',
+          gap: '1rem',
+          overflow: 'hidden',
+          width: '100%',
+          justifyContent: 'center',
         }}
       >
-        {children.map((child, index) => (
-          <div
-            key={index}
-            style={{ flex: '0 0 50%', boxSizing: 'border-box', padding: '1rem' }}
-          >
+        {children.slice(currentIndex, currentIndex + 2).map((child, index) => (
+          <div key={index} style={{ width: '50%' }}>
             {child}
           </div>
         ))}
       </div>
 
+      {/* Right Arrow */}
       <button
-        onClick={handleScrollRight}
+        onClick={handleNext}
         style={{
-          position: 'absolute',
-          right: '0',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          zIndex: 10,
+          border: 'none',
+          background: 'none',
+          cursor: 'pointer',
         }}
+        disabled={currentIndex >= children.length - 2}
       >
-        &gt;
+        <ArrowForwardIosIcon fontSize="large" />
       </button>
     </div>
   );

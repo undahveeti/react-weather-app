@@ -10,12 +10,16 @@ export interface HourlyData {
 }
 
 export interface DailyData {
-  date: string;
-  temperature: number;
-  wind: number;
-  rainChance: number;
-  hours: HourlyData[];
-}
+    datetime: string; // Matches API-provided 'datetime'
+    datetimeEpoch: number;
+    tempmax: number;  // Maximum temperature
+    tempmin: number;  // Minimum temperature
+    temp: number;     // Average temperature
+    wind?: number;    // Wind speed (if available in API)
+    rainChance?: number; // Rain chance (if available in API)
+    hours?: HourlyData[]; // Hourly data (if applicable)
+  }
+  
 
 export interface WeatherData {
   daily: DailyData[];
