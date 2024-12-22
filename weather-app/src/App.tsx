@@ -19,12 +19,13 @@ const App: React.FC = () => {
     timeRange: 'afternoon',
   });
 
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const { data, isLoading, error } = useWeatherData(location);
 
   const selectedDate = getDateForDay(selection.day, data?.daily);
 
-  // Calculate dates for the weather sections (limited to 14 days)
-  const dateOffsets = [0, 7, 14]; // Only up to 14 days
+  // Calculate dates for the weather sections
+  const dateOffsets = [0, 7, 14];
   const dates = dateOffsets.map((offset) =>
     selectedDate
       ? new Date(new Date(selectedDate).getTime() + offset * 24 * 60 * 60 * 1000)
@@ -33,12 +34,11 @@ const App: React.FC = () => {
       : undefined
   );
 
-  // Handle scrolling
   const handleScroll = (direction: 'left' | 'right') => {
-    const container = document.querySelector('.weather-sections-container') as HTMLElement;
-    if (container) {
-      const scrollAmount = 600; // Adjust based on the section width
-      container.scrollLeft += direction === 'left' ? -scrollAmount : scrollAmount;
+    if (direction === 'left') {
+      setCurrentIndex((prev) => Math.max(prev - 1, 0));
+    } else {
+      setCurrentIndex((prev) => Math.min(prev + 1, dateOffsets.length - 1));
     }
   };
 
@@ -53,12 +53,11 @@ const App: React.FC = () => {
         backgroundColor: '#f5f5f5',
         color: '#333',
         padding: '2rem',
-        overflowX: 'hidden', // Prevent horizontal scrolling on the page
+        overflowX: 'hidden',
       }}
     >
       <Header />
 
-      {/* Wrapper for LocationSelector and DayTimeSelector */}
       <Box
         sx={{
           display: 'flex',
@@ -115,53 +114,57 @@ const App: React.FC = () => {
           className="weather-sections-container"
           sx={{
             display: 'flex',
-            flexWrap: 'nowrap', // Sections side by side
-            gap: '1.5rem', // Spacing between sections
-            overflowX: 'hidden', // Hide scrollbar
+            flexDirection: { xs: 'column', md: 'row' }, // Column for mobile, row for desktop
+            gap: { xs: '0', md: '1.5rem' },
+            overflowX: { xs: 'hidden', md: 'visible' }, // Prevent horizontal scrolling on desktop
             width: '100%',
-            justifyContent: 'center', // Center-align horizontally
-            alignItems: 'flex-start', // Align sections vertically at the top
-            position: 'relative', // For arrow positioning
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            position: 'relative',
           }}
         >
-          {dates.slice(0, 2).map((date, index) => {
+          {dates.map((date, index) => {
             const dayData = data.daily.find((day) => day.date === date);
-
-            // Dynamic titles for sections
             const title =
               index === 0
-                ? `This ${selection.day}` // Label the first section as "This Friday"
-                : `Next ${selection.day}`; // Label the second section as "Next Friday"
+                ? `This ${selection.day}`
+                : index === 1
+                ? `Next ${selection.day}`
+                : `${index * 7} Days Later`;
 
-            return dayData ? (
-              <WeatherSection
-                key={index}
-                title={title}
-                dayData={dayData}
-                timeRange={selection.timeRange}
-              />
-            ) : (
-              <Box
-                key={index}
-                sx={{
-                  width: '500px',
-                  height: '300px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  backgroundColor: '#f5f5f5',
-                }}
-              >
-                <Typography>No Data Available</Typography>
-              </Box>
-            );
+            if (index === currentIndex || index === currentIndex + 1) {
+              return dayData ? (
+                <WeatherSection
+                  key={index}
+                  title={title}
+                  dayData={dayData}
+                  timeRange={selection.timeRange}
+                />
+              ) : (
+                <Box
+                  key={index}
+                  sx={{
+                    width: '500px',
+                    height: '300px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid #ccc',
+                    borderRadius: '8px',
+                    backgroundColor: '#f5f5f5',
+                  }}
+                >
+                  <Typography>No Data Available</Typography>
+                </Box>
+              );
+            }
+            return null;
           })}
 
           {/* Left Arrow */}
           <IconButton
             onClick={() => handleScroll('left')}
+            disabled={currentIndex === 0}
             sx={{
               position: 'absolute',
               left: '-25px',
@@ -170,6 +173,7 @@ const App: React.FC = () => {
               zIndex: 10,
               backgroundColor: '#fff',
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'block', // Always show arrows
             }}
           >
             <ArrowBackIosIcon />
@@ -178,6 +182,7 @@ const App: React.FC = () => {
           {/* Right Arrow */}
           <IconButton
             onClick={() => handleScroll('right')}
+            disabled={currentIndex >= dateOffsets.length - 1}
             sx={{
               position: 'absolute',
               right: '-25px',
@@ -186,6 +191,7 @@ const App: React.FC = () => {
               zIndex: 10,
               backgroundColor: '#fff',
               boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              display: 'block', // Always show arrows
             }}
           >
             <ArrowForwardIosIcon />
@@ -197,3 +203,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+

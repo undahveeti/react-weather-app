@@ -3,11 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchWeatherData } from '../utils/api';
 
 // types.ts
+// hooks/useWeatherData.ts
 export interface HourlyData {
-  time: string;
-  temperature: number;
-  wind: number;
-  rainChance: number;
+  datetime: string; // String representing the time, e.g., '08:00'
+  temp: number; // Temperature in °F
+  windspeed: number; // Wind speed in mph
+  precipprob: number; // Rain probability as a percentage
 }
 
 export interface DailyData {

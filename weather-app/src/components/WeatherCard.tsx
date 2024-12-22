@@ -23,23 +23,30 @@ const WeatherCard: React.FC<WeatherCardProps> = ({
   const renderWeatherIcon = () => {
     switch (weatherType) {
       case 'sunny':
-        return <WbSunnyIcon fontSize="large" color="warning" />;
+        return <WbSunnyIcon fontSize="large" sx={{ color: '#FFD700' }} />; // Gold for sunny
       case 'cloudy':
-        return <CloudIcon fontSize="large" color="action" />;
+        return <CloudIcon fontSize="large" sx={{ color: '#B0C4DE' }} />; // LightSteelBlue for cloudy
+      case 'rainy':
+        return <CloudIcon fontSize="large" sx={{ color: '#6495ED' }} />; // CornflowerBlue for rainy
+      case 'stormy':
+        return <CloudIcon fontSize="large" sx={{ color: '#1E90FF' }} />; // DodgerBlue for stormy
+      case 'snowy':
+        return <CloudIcon fontSize="large" sx={{ color: '#E0FFFF' }} />; // LightCyan for snowy
       default:
-        return <CloudIcon fontSize="large" color="action" />;
+        return <CloudIcon fontSize="large" sx={{ color: '#B0C4DE' }} />; // Default to cloudy
     }
   };
 
   return (
     <Card
       sx={{
-        backgroundColor: '#ffffff',
+        background: 'linear-gradient(90deg, #4facfe, #00f2fe)', // Apply gradient
         borderRadius: '12px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         padding: '1rem',
         width: '100%',
-        maxWidth: '450px', // Reduced width
+        maxWidth: '450px',
+        color: '#ffffff', // Ensure text is white for contrast
       }}
     >
       <CardContent>
