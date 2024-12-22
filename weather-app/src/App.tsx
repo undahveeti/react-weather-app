@@ -1,11 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import Header from './components/Header';
 import LocationSelector from './components/LocationSelector';
 import DayTimeSelector from './components/DayTimeSelector';
 import WeatherSection from './components/WeatherSection';
-import { useWeatherData, WeatherData, DailyData } from './hooks/useWeatherData';
+import { useWeatherData } from './hooks/useWeatherData';
 import { getDateForDay } from './utils/dateHelpers';
-import Container from './components/Container';
+import Carousel from './components/Carousel';
 
 const App: React.FC = () => {
   const [location, setLocation] = useState<string>('');
@@ -18,21 +18,38 @@ const App: React.FC = () => {
   });
 
   const { data, isLoading, error } = useWeatherData(location);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const selectedDate = getDateForDay(selection.day, data?.daily);
 
-  const findDailyData = (offset: number, weatherData: WeatherData | undefined): DailyData | undefined => {
-    if (!weatherData || !weatherData.daily) return undefined;
-    return weatherData.daily[offset];
-  };
+  const nextWeekDate = selectedDate
+    ? new Date(new Date(selectedDate).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    : undefined;
 
-  const handleScroll = (direction: 'left' | 'right') => {
-    if (!scrollContainerRef.current) return;
-    const scrollAmount = direction === 'left' ? -300 : 300;
-    scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  const fourteenDaysLaterDate = selectedDate
+    ? new Date(new Date(selectedDate).getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    : undefined;
+
+  const twentyOneDaysLaterDate = selectedDate
+    ? new Date(new Date(selectedDate).getTime() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    : undefined;
+
+  const findDailyData = (date: string | undefined) => {
+    if (!date || !data) return null;
+    return data.daily.find((day) => day.date === date) || null;
   };
 
   return (
-    <Container>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+        color: '#333',
+        padding: '2rem',
+      }}
+    >
       <Header />
       <LocationSelector onLocationSet={setLocation} />
       <DayTimeSelector selection={selection} onSelectionChange={setSelection} />
@@ -70,84 +87,38 @@ const App: React.FC = () => {
       )}
 
       {location && data && (
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            overflow: 'hidden',
-            padding: '2rem 0',
-          }}
-        >
-          <button
-            style={{
-              position: 'absolute',
-              left: '0',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              backgroundColor: '#007BFF',
-              color: '#fff',
-              border: 'none',
-              padding: '1rem',
-              cursor: 'pointer',
-              zIndex: 10,
-            }}
-            onClick={() => handleScroll('left')}
-          >
-            &lt;
-          </button>
-
-          <div
-            ref={scrollContainerRef}
-            style={{
-              display: 'flex',
-              gap: '2rem',
-              overflowX: 'scroll',
-              scrollBehavior: 'smooth',
-              padding: '1rem',
-            }}
-          >
+        <Carousel>
+          {findDailyData(selectedDate) && (
             <WeatherSection
-              title={`This ${selection.day}`}
-              dayData={findDailyData(0, data)}
+              title={`${selection.day} (This Week)`}
+              dayData={findDailyData(selectedDate)!}
               timeRange={selection.timeRange}
             />
+          )}
+          {findDailyData(nextWeekDate) && (
             <WeatherSection
-              title={`Next ${selection.day}`}
-              dayData={findDailyData(7, data)}
+              title={`${selection.day} (Next Week)`}
+              dayData={findDailyData(nextWeekDate)!}
               timeRange={selection.timeRange}
             />
+          )}
+          {findDailyData(fourteenDaysLaterDate) && (
             <WeatherSection
-              title={`${selection.day} (14 days later)`}
-              dayData={findDailyData(14, data)}
+              title={`${selection.day} (14 Days Later)`}
+              dayData={findDailyData(fourteenDaysLaterDate)!}
               timeRange={selection.timeRange}
             />
+          )}
+          {findDailyData(twentyOneDaysLaterDate) && (
             <WeatherSection
-              title={`${selection.day} (21 days later)`}
-              dayData={findDailyData(21, data)}
+              title={`${selection.day} (21 Days Later)`}
+              dayData={findDailyData(twentyOneDaysLaterDate)!}
               timeRange={selection.timeRange}
             />
-          </div>
-
-          <button
-            style={{
-              position: 'absolute',
-              right: '0',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              backgroundColor: '#007BFF',
-              color: '#fff',
-              border: 'none',
-              padding: '1rem',
-              cursor: 'pointer',
-              zIndex: 10,
-            }}
-            onClick={() => handleScroll('right')}
-          >
-            &gt;
-          </button>
-        </div>
+          )}
+        </Carousel>
       )}
-    </Container>
+    </div>
   );
 };
 
