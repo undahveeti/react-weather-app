@@ -1,45 +1,44 @@
+// src/components/WeatherSection.tsx
 import React from 'react';
 import WeatherCard from './WeatherCard';
 import WeatherChart from './WeatherChart';
+import { filterHourlyData, generateWeatherMessage } from '../utils/helpers';
+import { DailyData } from '../hooks/useWeatherData';
 
 interface WeatherSectionProps {
-  title: string; // Title for the section (e.g., "This Friday")
-  weatherData: {
-    temperature: string;
-    wind: string;
-    rain: string;
-  }; // Data for the WeatherCard
-  chartData: {
-    times: string[];
-    temperatures: number[];
-    winds: number[];
-    rainChances: number[];
-  }; // Data for the WeatherChart
+  title: string;
+  dayData: DailyData;
+  timeRange: 'morning' | 'afternoon' | 'evening';
 }
 
 /**
- * WeatherSection combines a WeatherCard and WeatherChart in a reusable layout.
+ * WeatherSection aggregates WeatherCard and WeatherChart based on user selections.
  */
-const WeatherSection: React.FC<WeatherSectionProps> = ({ title, weatherData, chartData }) => {
+const WeatherSection: React.FC<WeatherSectionProps> = ({ title, dayData, timeRange }) => {
+  // Filter hourly data based on the selected time range
+  const hourlyData = filterHourlyData(dayData.hours, timeRange);
+
+  // Generate a user-friendly weather message
+  const weatherMessage = generateWeatherMessage(dayData.temperature, dayData.rainChance);
+
   return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '1rem',
+        width: '100%',
+        padding: '1rem 0',
       }}
     >
-      {/* Weather Card */}
       <WeatherCard
         title={title}
-        temperature={weatherData.temperature}
-        wind={weatherData.wind}
-        rain={weatherData.rain}
+        temperature={`${dayData.temperature}°F`}
+        wind={`${dayData.wind} mph`}
+        rain={`${dayData.rainChance}%`}
+        weatherMessage={weatherMessage}
       />
-
-      {/* Weather Chart */}
-      <WeatherChart data={chartData} />
+      <WeatherChart data={hourlyData} />
     </div>
   );
 };

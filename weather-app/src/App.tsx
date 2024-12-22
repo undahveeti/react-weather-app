@@ -2,94 +2,85 @@ import React, { useState } from 'react';
 import Header from './components/Header';
 import LocationSelector from './components/LocationSelector';
 import DayTimeSelector from './components/DayTimeSelector';
-import WeatherCard from './components/WeatherCard';
-import WeatherChart from './components/WeatherChart';
-import { useWeatherData } from './hooks/useWeatherData';
+import WeatherSection from './components/WeatherSection';
+import { useWeatherData, WeatherData, DailyData } from './hooks/useWeatherData';
+import { getDateForDay } from './utils/dateHelpers';
+import Container from './components/Container';
 
 const App: React.FC = () => {
-  const [inputLocation, setInputLocation] = useState(''); // Input field for location
-  const [location, setLocation] = useState(''); // Validated location for fetching
-  const [selection, setSelection] = useState<{ day: string; timeRange: 'morning' | 'afternoon' | 'evening' }>({
+  const [location, setLocation] = useState<string>('');
+  const [selection, setSelection] = useState<{
+    day: string;
+    timeRange: 'morning' | 'afternoon' | 'evening';
+  }>({
     day: 'Friday',
     timeRange: 'afternoon',
   });
 
-  // Fetch weather data using the custom hook
   const { data, isLoading, error } = useWeatherData(location);
 
-  // Helper function to filter hourly data based on the selected time range
-  const filterHourlyData = (range: 'morning' | 'afternoon' | 'evening') => {
-    if (!data?.hourly) return { times: [], temperatures: [], winds: [], rainChances: [] };
+  // Calculate the selected day's date
+  const selectedDate = getDateForDay(selection.day, data?.daily);
 
-    const timeRangeIndexes = {
-      morning: [8, 9, 10, 11],
-      afternoon: [12, 13, 14, 15],
-      evening: [17, 18, 19, 20],
-    };
+  // Calculate the next week's date for the same day
+  const nextWeekDate = selectedDate
+    ? new Date(new Date(selectedDate).getTime() + 7 * 24 * 60 * 60 * 1000) // Add 7 days
+        .toISOString()
+        .split('T')[0] // Format to YYYY-MM-DD
+    : undefined;
 
-    const indexes = timeRangeIndexes[range];
-    return {
-      times: indexes.map((i) => data.hourly.times[i] ?? ''),
-      temperatures: indexes.map((i) => data.hourly.temperatures[i] ?? 0),
-      winds: indexes.map((i) => data.hourly.winds[i] ?? 0),
-      rainChances: indexes.map((i) => data.hourly.rainChances[i] ?? 0),
-    };
+  // Helper function to find daily data based on the selected date
+  const findDailyData = (date: string | undefined, weatherData: WeatherData | undefined): DailyData | undefined => {
+    if (!date || !weatherData) return undefined;
+    return weatherData.daily.find((day) => day.date === date);
   };
 
-  // Handle loading and error states
-  if (isLoading) return <p>Loading weather data...</p>;
-  if (error) return <p>Error fetching weather data. Please try again later.</p>;
+  const dailyData = findDailyData(selectedDate, data);
+  const nextWeekDailyData = findDailyData(nextWeekDate, data);
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        minHeight: '100vh',
-        backgroundColor: '#333',
-        color: '#fff',
-        padding: '2rem',
-      }}
-    >
-      {/* Header */}
+    <Container>
       <Header />
-
-      {/* Location Input */}
-      <LocationSelector
-        onLocationSet={(newLocation) => setInputLocation(newLocation)} // Update input state
-      />
-      <button
-        onClick={() => setLocation(inputLocation)} // Submit location
-        style={{
-          marginTop: '1rem',
-          padding: '0.5rem 1rem',
-          backgroundColor: '#007BFF',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        Fetch Weather
-      </button>
-
-      {/* Time Range Selector */}
-      <DayTimeSelector
-        onSelectionChange={(newSelection) => setSelection(newSelection)} // Update both day and timeRange
-      />
+      <LocationSelector onLocationSet={setLocation} />
+      <DayTimeSelector selection={selection} onSelectionChange={setSelection} />
 
       <p style={{ marginTop: '1rem', fontSize: '1rem' }}>
         Selected location: {location || 'None'}
       </p>
 
-      {/* Weather Data Section */}
-      {location && data && (
+      {isLoading && (
         <div
           style={{
             display: 'flex',
-            flexDirection: 'row', // Align "This Day" and "Next Day" sections horizontally
+            height: '50vh',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <p>Loading weather data...</p>
+        </div>
+      )}
+
+      {error && (
+        <div
+          style={{
+            display: 'flex',
+            height: '50vh',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+          }}
+        >
+          <p>Error fetching weather data. Please try again later.</p>
+        </div>
+      )}
+
+      {location && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
             gap: '2rem',
             marginTop: '2rem',
             justifyContent: 'center',
@@ -97,29 +88,25 @@ const App: React.FC = () => {
           }}
         >
           {/* This Day Section */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <WeatherCard
-              title={`This ${selection.day}`}
-              temperature={`${data.daily[0]?.temperature ?? 'N/A'}°F`}
-              wind={`${data.daily[0]?.wind ?? 'N/A'} mph`}
-              rain={`${data.daily[0]?.rainChance ?? 'N/A'}%`}
+          {dailyData && (
+            <WeatherSection
+              title={`This ${selection.day}, ${dailyData.date}`}
+              dayData={dailyData}
+              timeRange={selection.timeRange}
             />
-            <WeatherChart data={filterHourlyData(selection.timeRange)} />
-          </div>
+          )}
 
-          {/* Next Day Section */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <WeatherCard
-              title={`Next ${selection.day}`}
-              temperature={`${data.daily[1]?.temperature ?? 'N/A'}°F`}
-              wind={`${data.daily[1]?.wind ?? 'N/A'} mph`}
-              rain={`${data.daily[1]?.rainChance ?? 'N/A'}%`}
+          {/* Next Week Section */}
+          {nextWeekDailyData && (
+            <WeatherSection
+              title={`Next ${selection.day}, ${nextWeekDailyData.date}`}
+              dayData={nextWeekDailyData}
+              timeRange={selection.timeRange}
             />
-            <WeatherChart data={filterHourlyData(selection.timeRange)} />
-          </div>
+          )}
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 
