@@ -1,35 +1,39 @@
-// weather summary temp wind rain for this week and next week
-
 import React from 'react';
 
 interface WeatherCardProps {
-  title: string; // Title for the card (e.g., "This Friday")
-  temperature: string; // Displayed temperature (e.g., "72°F")
-  wind: string; // Wind speed (e.g., "10 mph")
-  rain: string; // Rain chance (e.g., "5%")
+  title: string;
+  temperature: string;
+  wind: string;
+  rain: string;
 }
 
 /**
  * WeatherCard displays summarized weather data for a specific day.
  */
-const WeatherCard: React.FC<WeatherCardProps> = ({ title, temperature, wind, rain }) => {
+const WeatherCard: React.FC<WeatherCardProps> = ({
+  title = 'N/A',
+  temperature = 'N/A',
+  wind = 'N/A',
+  rain = 'N/A',
+}) => {
   return (
     <div
       style={{
-        backgroundColor: '#444', // Dark gray background
-        color: '#fff', // White text for readability
+        backgroundColor: '#444',
+        color: '#fff',
         padding: '1.5rem',
-        borderRadius: '8px', // Rounded corners for modern design
-        maxWidth: '300px', // Limit width for consistent layout
-        textAlign: 'center', // Center align the content
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow for depth
-        margin: '1rem auto', // Center the card horizontally
+        borderRadius: '8px',
+        maxWidth: '300px',
+        width: '100%', // Ensure card scales for smaller screens
+        textAlign: 'center',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        margin: '1rem auto',
       }}
     >
-      <h3 style={{ margin: '0 0 1rem' }}>{title}</h3>
-      <p style={{ margin: '0.5rem 0' }}>Temperature: {temperature}</p>
-      <p style={{ margin: '0.5rem 0' }}>Wind: {wind}</p>
-      <p style={{ margin: '0.5rem 0' }}>Rain: {rain}</p>
+      <h3 style={{ margin: '0 0 1rem', fontSize: '1.5rem', fontWeight: 'bold' }}>{title}</h3>
+      <p style={{ margin: '1rem 0', fontSize: '1.2rem' }}>Temperature: {temperature}</p>
+      <p style={{ margin: '1rem 0', fontSize: '1.2rem' }}>Wind: {wind}</p>
+      <p style={{ margin: '1rem 0', fontSize: '1.2rem' }}>Rain: {rain}</p>
     </div>
   );
 };
