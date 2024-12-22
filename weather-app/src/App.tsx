@@ -7,7 +7,8 @@ import WeatherChart from './components/WeatherChart';
 import { useWeatherData } from './hooks/useWeatherData';
 
 const App: React.FC = () => {
-  const [location, setLocation] = useState(''); // Location input
+  const [inputLocation, setInputLocation] = useState(''); // Input field for location
+  const [location, setLocation] = useState(''); // Validated location for fetching
   const [selection, setSelection] = useState<{ day: string; timeRange: 'morning' | 'afternoon' | 'evening' }>({
     day: 'Friday',
     timeRange: 'afternoon',
@@ -37,7 +38,7 @@ const App: React.FC = () => {
 
   // Handle loading and error states
   if (isLoading) return <p>Loading weather data...</p>;
-  if (error || !data) return <p>Error fetching weather data. Please try again later.</p>;
+  if (error) return <p>Error fetching weather data. Please try again later.</p>;
 
   return (
     <div
@@ -56,7 +57,23 @@ const App: React.FC = () => {
       <Header />
 
       {/* Location Input */}
-      <LocationSelector onLocationSet={setLocation} />
+      <LocationSelector
+        onLocationSet={(newLocation) => setInputLocation(newLocation)} // Update input state
+      />
+      <button
+        onClick={() => setLocation(inputLocation)} // Submit location
+        style={{
+          marginTop: '1rem',
+          padding: '0.5rem 1rem',
+          backgroundColor: '#007BFF',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        Fetch Weather
+      </button>
 
       {/* Time Range Selector */}
       <DayTimeSelector

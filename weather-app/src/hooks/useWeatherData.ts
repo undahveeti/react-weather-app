@@ -22,11 +22,13 @@ interface WeatherData {
  * @returns Weather data with query states.
  */
 export const useWeatherData = (location: string) => {
-  return useQuery<WeatherData, Error>({
-    queryKey: ['weatherData', location], // Unique query key
-    queryFn: () => fetchWeatherData(location), // Fetch function
-    enabled: !!location, // Only fetch when location is set
-    staleTime: 1000 * 60 * 10, // Cache data for 10 minutes
-    retry: 2, // Retry twice on failure
-  });
+  return useQuery<WeatherData, Error>(
+    {
+      queryKey: ['weatherData', location], // Unique query key
+      queryFn: () => fetchWeatherData(location), // Fetch function
+      enabled: location.trim().length > 0, // Only fetch when location is non-empty
+      staleTime: 1000 * 60 * 10, // Cache data for 10 minutes
+      retry: 2, // Retry twice on failure
+    }
+  );
 };
