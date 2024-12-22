@@ -1,6 +1,6 @@
 // src/components/DayTimeSelector.tsx
 import React from 'react';
-import { Box, FormControl, InputLabel, Select, MenuItem, Typography, SelectChangeEvent } from '@mui/material';
+import { Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 
 interface Selection {
   day: string;
