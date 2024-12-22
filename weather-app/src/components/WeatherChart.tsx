@@ -1,3 +1,4 @@
+// src/components/WeatherChart.tsx
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -10,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { Box } from '@mui/material'; // Import Box from MUI
 
 // Register required Chart.js components
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend);
@@ -59,7 +61,7 @@ const WeatherChart: React.FC<WeatherChartProps> = React.memo(({ data }) => {
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: false, // Allows us to set a fixed height
     plugins: {
       legend: { position: 'top' as const },
       tooltip: { enabled: true },
@@ -92,9 +94,15 @@ const WeatherChart: React.FC<WeatherChartProps> = React.memo(({ data }) => {
   };
 
   return (
-    <div style={{ width: '100%', height: '300px', padding: '1rem' }}>
+    <Box
+  sx={{
+    width: '100%', // Matches parent width
+    height: '250px', // Adjust height to prevent overflow
+    padding: '0.5rem',
+  }}
+>
       <Line data={chartData} options={chartOptions} />
-    </div>
+    </Box>
   );
 });
 

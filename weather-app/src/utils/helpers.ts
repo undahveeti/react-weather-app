@@ -64,27 +64,38 @@ export const filterHourlyData = (
  * @param rainChance - The rain probability percentage.
  * @returns A user-friendly weather message.
  */
-export const generateWeatherMessage = (temperature: number, rainChance: number): string => {
+export const generateWeatherMessage = (
+  temperature: number,
+  rainChance: number
+): { message: string; weatherType: 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'stormy' } => {
   let message = '';
+  let weatherType: 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'stormy' = 'sunny';
 
   if (temperature >= 60 && temperature <= 75) {
     message += 'Nice day';
+    weatherType = 'sunny';
   } else if (temperature < 60) {
     message += 'Cool day';
+    weatherType = rainChance > 50 ? 'rainy' : 'cloudy';
   } else {
     message += 'Warm day';
+    weatherType = 'sunny';
   }
 
   if (rainChance >= 25 && rainChance <= 75) {
     message += ' with a chance of rain';
+    weatherType = 'rainy';
   } else if (rainChance > 75) {
     message += ' likely to rain';
-  } else {
+    weatherType = 'stormy';
+  } else if (rainChance > 0) {
+    weatherType = 'cloudy';
     message += ' with little to no rain';
   }
 
-  return message + '.';
+  return { message: message + '.', weatherType };
 };
+
 
 /**
  * Formats the datetime string to a readable time format (e.g., '12 PM').

@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useState } from 'react';
 import Header from './components/Header';
 import LocationSelector from './components/LocationSelector';
@@ -6,7 +5,7 @@ import DayTimeSelector from './components/DayTimeSelector';
 import WeatherSection from './components/WeatherSection';
 import { useWeatherData } from './hooks/useWeatherData';
 import { getDateForDay } from './utils/dateHelpers';
-import { IconButton, Grid, Box, Typography, CircularProgress, Alert } from '@mui/material';
+import { IconButton, Box, Typography, CircularProgress, Alert } from '@mui/material';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
@@ -20,7 +19,6 @@ const App: React.FC = () => {
     timeRange: 'afternoon',
   });
 
-  const [currentIndex, setCurrentIndex] = useState<number>(0); // Track the current scroll index
   const { data, isLoading, error } = useWeatherData(location);
 
   const selectedDate = getDateForDay(selection.day, data?.daily);
@@ -35,18 +33,12 @@ const App: React.FC = () => {
       : undefined
   );
 
-  // Helper function to find daily data based on the selected date
-  const findDailyData = (date: string | undefined) => {
-    if (!date || !data) return null;
-    return data.daily.find((day) => day.date === date) || null;
-  };
-
   // Handle scrolling
   const handleScroll = (direction: 'left' | 'right') => {
-    if (direction === 'left') {
-      setCurrentIndex((prev) => Math.max(prev - 1, 0));
-    } else {
-      setCurrentIndex((prev) => Math.min(prev + 1, dateOffsets.length - 2));
+    const container = document.querySelector('.weather-sections-container') as HTMLElement;
+    if (container) {
+      const scrollAmount = 600; // Adjust based on the section width
+      container.scrollLeft += direction === 'left' ? -scrollAmount : scrollAmount;
     }
   };
 
@@ -61,27 +53,27 @@ const App: React.FC = () => {
         backgroundColor: '#f5f5f5',
         color: '#333',
         padding: '2rem',
+        overflowX: 'hidden', // Prevent horizontal scrolling on the page
       }}
     >
       <Header />
 
       {/* Wrapper for LocationSelector and DayTimeSelector */}
-      <Grid
-        container
-        spacing={4}
+      <Box
         sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '2rem',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
           width: '100%',
           maxWidth: '800px',
           margin: '2rem auto',
         }}
       >
-        <Grid item xs={12} md={6}>
-          <LocationSelector onLocationSet={setLocation} />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <DayTimeSelector selection={selection} onSelectionChange={setSelection} />
-        </Grid>
-      </Grid>
+        <LocationSelector onLocationSet={setLocation} />
+        <DayTimeSelector selection={selection} onSelectionChange={setSelection} />
+      </Box>
 
       <Typography variant="body1" sx={{ marginTop: '1rem' }}>
         Selected location: {location || 'None'}
@@ -119,77 +111,85 @@ const App: React.FC = () => {
       )}
 
       {location && data && (
-        <Box sx={{ width: '100%', maxWidth: '1200px', marginTop: '2rem' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-            {/* Left Arrow */}
-            <IconButton
-              onClick={() => handleScroll('left')}
-              disabled={currentIndex === 0}
-              sx={{
-                position: 'absolute',
-                left: '0',
-                zIndex: 10,
-              }}
-            >
-              <ArrowBackIosIcon />
-            </IconButton>
+        <Box
+          className="weather-sections-container"
+          sx={{
+            display: 'flex',
+            flexWrap: 'nowrap', // Sections side by side
+            gap: '1.5rem', // Spacing between sections
+            overflowX: 'hidden', // Hide scrollbar
+            width: '100%',
+            justifyContent: 'center', // Center-align horizontally
+            alignItems: 'flex-start', // Align sections vertically at the top
+            position: 'relative', // For arrow positioning
+          }}
+        >
+          {dates.slice(0, 2).map((date, index) => {
+            const dayData = data.daily.find((day) => day.date === date);
 
-            {/* Weather Sections */}
-            <Box
-              sx={{
-                display: 'flex',
-                gap: '2rem',
-                overflow: 'hidden',
-                width: '100%',
-                justifyContent: 'center',
-              }}
-            >
-              {dates.slice(currentIndex, currentIndex + 2).map((date, index) => {
-                const dayData = findDailyData(date);
-                return dayData ? (
-                  <WeatherSection
-                    key={index}
-                    title={`${
-                      selection.day
-                    } (${index === 0 ? `${currentIndex * 7} Days Later` : `${
-                      (currentIndex + 1) * 7
-                    } Days Later`})`}
-                    dayData={dayData}
-                    timeRange={selection.timeRange}
-                  />
-                ) : (
-                  <Box
-                    key={index}
-                    sx={{
-                      width: '300px',
-                      height: '400px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px solid #ccc',
-                      borderRadius: '8px',
-                      backgroundColor: '#f5f5f5',
-                    }}
-                  >
-                    <Typography>No Data Available</Typography>
-                  </Box>
-                );
-              })}
-            </Box>
+            // Dynamic titles for sections
+            const title =
+              index === 0
+                ? `This ${selection.day}` // Label the first section as "This Friday"
+                : `Next ${selection.day}`; // Label the second section as "Next Friday"
 
-            {/* Right Arrow */}
-            <IconButton
-              onClick={() => handleScroll('right')}
-              disabled={currentIndex >= dateOffsets.length - 2}
-              sx={{
-                position: 'absolute',
-                right: '0',
-                zIndex: 10,
-              }}
-            >
-              <ArrowForwardIosIcon />
-            </IconButton>
-          </Box>
+            return dayData ? (
+              <WeatherSection
+                key={index}
+                title={title}
+                dayData={dayData}
+                timeRange={selection.timeRange}
+              />
+            ) : (
+              <Box
+                key={index}
+                sx={{
+                  width: '500px',
+                  height: '300px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  backgroundColor: '#f5f5f5',
+                }}
+              >
+                <Typography>No Data Available</Typography>
+              </Box>
+            );
+          })}
+
+          {/* Left Arrow */}
+          <IconButton
+            onClick={() => handleScroll('left')}
+            sx={{
+              position: 'absolute',
+              left: '-25px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              backgroundColor: '#fff',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <ArrowBackIosIcon />
+          </IconButton>
+
+          {/* Right Arrow */}
+          <IconButton
+            onClick={() => handleScroll('right')}
+            sx={{
+              position: 'absolute',
+              right: '-25px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              zIndex: 10,
+              backgroundColor: '#fff',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <ArrowForwardIosIcon />
+          </IconButton>
         </Box>
       )}
     </Box>

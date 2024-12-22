@@ -1,5 +1,7 @@
-// src/components/WeatherCard.tsx
 import React from 'react';
+import { Card, CardContent, Typography, Box } from '@mui/material';
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
+import CloudIcon from '@mui/icons-material/Cloud';
 
 interface WeatherCardProps {
   title: string;
@@ -7,41 +9,53 @@ interface WeatherCardProps {
   wind: string;
   rain: string;
   weatherMessage: string;
+  weatherType: 'sunny' | 'cloudy' | 'rainy' | 'snowy' | 'stormy';
 }
 
-/**
- * WeatherCard displays summarized weather data for a specific day.
- */
-const WeatherCard: React.FC<WeatherCardProps> = React.memo(
-  ({
-    title = 'N/A',
-    temperature = 'N/A',
-    wind = 'N/A',
-    rain = 'N/A',
-    weatherMessage = 'N/A',
-  }) => {
-    return (
-      <div
-        style={{
-          backgroundColor: '#444',
-          color: '#fff',
-          padding: '1.5rem',
-          borderRadius: '8px',
-          width: '100%',
-          maxWidth: '300px',
-          textAlign: 'center',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          margin: '1rem auto',
-        }}
-      >
-        <h3 style={{ margin: '0 0 1rem', fontSize: '1.5rem', fontWeight: 'bold' }}>{title}</h3>
-        <p style={{ margin: '0.5rem 0', fontSize: '1.2rem' }}>Temperature: {temperature}</p>
-        <p style={{ margin: '0.5rem 0', fontSize: '1.2rem' }}>Wind: {wind}</p>
-        <p style={{ margin: '0.5rem 0', fontSize: '1.2rem' }}>Rain Chance: {rain}</p>
-        <p style={{ marginTop: '1rem', fontStyle: 'italic', fontSize: '1rem' }}>{weatherMessage}</p>
-      </div>
-    );
-  }
-);
+const WeatherCard: React.FC<WeatherCardProps> = ({
+  title,
+  temperature,
+  wind,
+  rain,
+  weatherMessage,
+  weatherType,
+}) => {
+  const renderWeatherIcon = () => {
+    switch (weatherType) {
+      case 'sunny':
+        return <WbSunnyIcon fontSize="large" color="warning" />;
+      case 'cloudy':
+        return <CloudIcon fontSize="large" color="action" />;
+      default:
+        return <CloudIcon fontSize="large" color="action" />;
+    }
+  };
+
+  return (
+    <Card
+      sx={{
+        backgroundColor: '#ffffff',
+        borderRadius: '12px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        padding: '1rem',
+        width: '100%',
+        maxWidth: '450px', // Reduced width
+      }}
+    >
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+          {renderWeatherIcon()}
+        </Box>
+        <Typography variant="h6" sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+          {title}
+        </Typography>
+        <Typography>Temperature: {temperature}</Typography>
+        <Typography>Wind: {wind}</Typography>
+        <Typography>Rain Chance: {rain}</Typography>
+        <Typography sx={{ fontStyle: 'italic', marginTop: '0.5rem' }}>{weatherMessage}</Typography>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default WeatherCard;

@@ -39,7 +39,7 @@ const Header: React.FC = () => {
       >
         {/* Title */}
         <div style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '1px' }}>
-          Weather IO
+          WEATHER IO
         </div>
 
         {/* Right Section (Responsive) */}
