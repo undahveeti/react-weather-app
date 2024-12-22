@@ -8,30 +8,38 @@ import { HourlyData } from '../hooks/useWeatherData';
  * @returns Filtered data containing times, temperatures, winds, and rainChances.
  */
 export const filterHourlyData = (
-  hours: HourlyData[] | undefined,
-  timeRange: 'morning' | 'afternoon' | 'evening'
-): {
-  times: string[];
-  temperatures: number[];
-  winds: number[];
-  rainChances: number[];
-} => {
-  if (!hours) return { times: [], temperatures: [], winds: [], rainChances: [] };
-
-  const timeRangeIndexes: { [key in 'morning' | 'afternoon' | 'evening']: number[] } = {
-    morning: [6, 7, 8, 9], // 6 AM to 9 AM
-    afternoon: [12, 13, 14, 15], // 12 PM to 3 PM
-    evening: [18, 19, 20, 21], // 6 PM to 9 PM
+    hours: HourlyData[] | undefined,
+    timeRange: 'morning' | 'afternoon' | 'evening'
+  ): {
+    times: string[];
+    temperatures: number[];
+    winds: number[];
+    rainChances: number[];
+  } => {
+    if (!hours) return { times: [], temperatures: [], winds: [], rainChances: [] };
+  
+    // Define the time ranges
+    const timeRanges: { [key in 'morning' | 'afternoon' | 'evening']: [number, number] } = {
+      morning: [8, 12], // 8 AM to 12 PM
+      afternoon: [12, 17], // 12 PM to 5 PM
+      evening: [17, 21], // 5 PM to 9 PM
+    };
+  
+    const [startHour, endHour] = timeRanges[timeRange];
+  
+    // Filter the hours within the selected range
+    const filteredHours = hours.filter((hour) => {
+      const hourTime = new Date(hour.datetime).getHours();
+      return hourTime >= startHour && hourTime < endHour;
+    });
+  
+    return {
+      times: filteredHours.map((hour) => formatTime(hour.datetime)),
+      temperatures: filteredHours.map((hour) => hour.temp ?? 0),
+      winds: filteredHours.map((hour) => hour.windspeed ?? 0),
+      rainChances: filteredHours.map((hour) => hour.precipprob ?? 0),
+    };
   };
-
-  const indexes = timeRangeIndexes[timeRange];
-  return {
-    times: indexes.map((i) => formatTime(hours[i]?.datetime || 'N/A')),
-    temperatures: indexes.map((i) => hours[i]?.temp ?? 0),
-    winds: indexes.map((i) => hours[i]?.windspeed ?? 0),
-    rainChances: indexes.map((i) => hours[i]?.precipprob ?? 0),
-  };
-};
 
 /**
  * Generates a generic weather message based on temperature and rain chance.

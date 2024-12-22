@@ -1,4 +1,3 @@
-// src/components/WeatherSection.tsx
 import React from 'react';
 import WeatherCard from './WeatherCard';
 import WeatherChart from './WeatherChart';
@@ -11,11 +10,8 @@ interface WeatherSectionProps {
   timeRange: 'morning' | 'afternoon' | 'evening';
 }
 
-/**
- * WeatherSection aggregates WeatherCard and WeatherChart based on user selections.
- */
 const WeatherSection: React.FC<WeatherSectionProps> = ({ title, dayData, timeRange }) => {
-  // Filter hourly data based on the selected time range
+  // Filter the hourly data based on the selected time range
   const hourlyData = filterHourlyData(dayData.hours, timeRange);
 
   // Generate a user-friendly weather message
