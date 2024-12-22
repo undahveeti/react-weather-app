@@ -5,7 +5,9 @@ import DayTimeSelector from './components/DayTimeSelector';
 import WeatherSection from './components/WeatherSection';
 import { useWeatherData } from './hooks/useWeatherData';
 import { getDateForDay } from './utils/dateHelpers';
-import Carousel from './components/Carousel';
+import { IconButton } from '@mui/material';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const App: React.FC = () => {
   const [location, setLocation] = useState<string>('');
@@ -17,24 +19,34 @@ const App: React.FC = () => {
     timeRange: 'afternoon',
   });
 
+  const [currentIndex, setCurrentIndex] = useState<number>(0); // Track the current scroll index
   const { data, isLoading, error } = useWeatherData(location);
+
   const selectedDate = getDateForDay(selection.day, data?.daily);
 
-  const nextWeekDate = selectedDate
-    ? new Date(new Date(selectedDate).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    : undefined;
+  // Calculate dates for the weather sections
+  const dateOffsets = [0, 7, 14, 21];
+  const dates = dateOffsets.map((offset) =>
+    selectedDate
+      ? new Date(new Date(selectedDate).getTime() + offset * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0]
+      : undefined
+  );
 
-  const fourteenDaysLaterDate = selectedDate
-    ? new Date(new Date(selectedDate).getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    : undefined;
-
-  const twentyOneDaysLaterDate = selectedDate
-    ? new Date(new Date(selectedDate).getTime() + 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    : undefined;
-
+  // Helper function to find daily data based on the selected date
   const findDailyData = (date: string | undefined) => {
     if (!date || !data) return null;
     return data.daily.find((day) => day.date === date) || null;
+  };
+
+  // Handle scrolling
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (direction === 'left') {
+      setCurrentIndex((prev) => Math.max(prev - 1, 0));
+    } else {
+      setCurrentIndex((prev) => Math.min(prev + 1, dateOffsets.length - 2));
+    }
   };
 
   return (
@@ -87,36 +99,60 @@ const App: React.FC = () => {
       )}
 
       {location && data && (
-        <Carousel>
-          {findDailyData(selectedDate) && (
-            <WeatherSection
-              title={`${selection.day} (This Week)`}
-              dayData={findDailyData(selectedDate)!}
-              timeRange={selection.timeRange}
-            />
-          )}
-          {findDailyData(nextWeekDate) && (
-            <WeatherSection
-              title={`${selection.day} (Next Week)`}
-              dayData={findDailyData(nextWeekDate)!}
-              timeRange={selection.timeRange}
-            />
-          )}
-          {findDailyData(fourteenDaysLaterDate) && (
-            <WeatherSection
-              title={`${selection.day} (14 Days Later)`}
-              dayData={findDailyData(fourteenDaysLaterDate)!}
-              timeRange={selection.timeRange}
-            />
-          )}
-          {findDailyData(twentyOneDaysLaterDate) && (
-            <WeatherSection
-              title={`${selection.day} (21 Days Later)`}
-              dayData={findDailyData(twentyOneDaysLaterDate)!}
-              timeRange={selection.timeRange}
-            />
-          )}
-        </Carousel>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            position: 'relative',
+            marginTop: '2rem',
+          }}
+        >
+          {/* Left Arrow */}
+          <IconButton
+            onClick={() => handleScroll('left')}
+            disabled={currentIndex === 0}
+            style={{ position: 'absolute', left: '1rem', zIndex: 10 }}
+          >
+            <ArrowBackIosIcon />
+          </IconButton>
+
+          {/* Weather Sections */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '2rem',
+              overflow: 'hidden',
+              width: '100%',
+              justifyContent: 'center',
+            }}
+          >
+            {findDailyData(dates[currentIndex]) && (
+              <WeatherSection
+                title={`${selection.day} (This Week)`}
+                dayData={findDailyData(dates[currentIndex])!}
+                timeRange={selection.timeRange}
+              />
+            )}
+            {findDailyData(dates[currentIndex + 1]) && (
+              <WeatherSection
+                title={`${selection.day} (Next Week)`}
+                dayData={findDailyData(dates[currentIndex + 1])!}
+                timeRange={selection.timeRange}
+              />
+            )}
+          </div>
+
+          {/* Right Arrow */}
+          <IconButton
+            onClick={() => handleScroll('right')}
+            disabled={currentIndex >= dateOffsets.length - 2}
+            style={{ position: 'absolute', right: '1rem', zIndex: 10 }}
+          >
+            <ArrowForwardIosIcon />
+          </IconButton>
+        </div>
       )}
     </div>
   );
