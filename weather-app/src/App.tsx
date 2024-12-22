@@ -24,8 +24,8 @@ const App: React.FC = () => {
 
   const selectedDate = getDateForDay(selection.day, data?.daily);
 
-  // Limit date offsets to 14 days maximum
-  const dateOffsets = [0, 7, 14];
+  // Calculate dates for the weather sections (limited to 14 days)
+  const dateOffsets = [0, 7, 14]; // Only up to 14 days
   const dates = dateOffsets.map((offset) =>
     selectedDate
       ? new Date(new Date(selectedDate).getTime() + offset * 24 * 60 * 60 * 1000)
@@ -38,13 +38,6 @@ const App: React.FC = () => {
   const findDailyData = (date: string | undefined) => {
     if (!date || !data) return null;
     return data.daily.find((day) => day.date === date) || null;
-  };
-
-  // Helper function to get the label for the weather section
-  const getDayLabel = (index: number): string => {
-    if (index === 0) return `This ${selection.day}`;
-    if (index === 1) return `Next ${selection.day}`;
-    return `${index} Weeks Later`;
   };
 
   // Handle scrolling
@@ -140,7 +133,11 @@ const App: React.FC = () => {
               return dayData ? (
                 <WeatherSection
                   key={index}
-                  title={getDayLabel(currentIndex + index)}
+                  title={`${
+                    selection.day
+                  } (${index === 0 ? `${currentIndex * 7} Days Later` : `${
+                    (currentIndex + 1) * 7
+                  } Days Later`})`}
                   dayData={dayData}
                   timeRange={selection.timeRange}
                 />

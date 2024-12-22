@@ -1,4 +1,4 @@
-// src/utils/dateHelpers.ts
+// utils/dateHelpers.ts
 import { DailyData } from '../hooks/useWeatherData';
 
 /**

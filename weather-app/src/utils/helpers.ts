@@ -27,7 +27,7 @@ export const filterHourlyData = (
     const timeRanges = {
       morning: [8, 12], // 6 AM to 9 AM
       afternoon: [12, 17], // 12 PM to 3 PM
-      evening: [17, 21], // 6 PM to 9 PM
+      evening: [17, 22], // 6 PM to 9 PM
     };
   
     const [startHour, endHour] = timeRanges[timeRange];
