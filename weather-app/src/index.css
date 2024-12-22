@@ -11,3 +11,100 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* General Container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  color: #333;
+  padding: 2rem;
+}
+
+/* Selectors Container */
+.selectors-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 800px;
+  margin: 2rem auto;
+  gap: 2rem;
+}
+
+/* Selected Location Text */
+.selected-location {
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+/* Loading and Error Containers */
+.loading-container,
+.error-container {
+  display: flex;
+  height: 50vh;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.error-container p {
+  color: red;
+}
+
+/* Weather Section Container */
+.weather-section-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  margin-top: 2rem;
+}
+
+/* Weather Sections */
+.weather-sections {
+  display: flex;
+  gap: 2rem;
+  overflow: hidden;
+  width: 100%;
+  justify-content: center;
+}
+
+.no-data {
+  width: 300px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+}
+
+/* Arrow Buttons */
+.arrow-button {
+  position: absolute;
+  z-index: 10;
+}
+
+.left-arrow {
+  left: 1rem;
+}
+
+.right-arrow {
+  right: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .selectors-container {
+    flex-direction: column;
+    gap: 3rem;
+    margin-top: 3rem;
+  }
+}

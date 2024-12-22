@@ -49,85 +49,122 @@ const App: React.FC = () => {
     }
   };
 
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        minHeight: '100vh',
-        backgroundColor: '#f5f5f5',
-        color: '#333',
-        padding: '2rem',
-      }}
-    >
-      <Header />
-      <LocationSelector onLocationSet={setLocation} />
-      <DayTimeSelector selection={selection} onSelectionChange={setSelection} />
+  const styles: { [key: string]: React.CSSProperties } = {
+    appContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      minHeight: '100vh',
+      backgroundColor: '#f5f5f5',
+      color: '#333',
+      padding: '2rem',
+    },
+    selectorsContainer: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      width: '100%',
+      maxWidth: '800px',
+      margin: '2rem auto',
+      gap: '2rem',
+    },
+    selectedLocation: {
+      marginTop: '1rem',
+      fontSize: '1rem',
+    },
+    loadingContainer: {
+      display: 'flex',
+      height: '50vh',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+    },
+    errorContainer: {
+      display: 'flex',
+      height: '50vh',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      color: 'red',
+    },
+    weatherSectionContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      position: 'relative',
+      marginTop: '2rem',
+    },
+    weatherSections: {
+      display: 'flex',
+      gap: '2rem',
+      overflow: 'hidden',
+      width: '100%',
+      justifyContent: 'center',
+    },
+    noData: {
+      width: '300px',
+      height: '400px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px solid #ccc',
+      borderRadius: '8px',
+      backgroundColor: '#f5f5f5',
+    },
+    arrowButton: {
+      position: 'absolute',
+      zIndex: 10,
+    },
+    leftArrow: {
+      left: '1rem',
+    },
+    rightArrow: {
+      right: '1rem',
+    },
+  };
 
-      <p style={{ marginTop: '1rem', fontSize: '1rem' }}>
+  return (
+    <div style={styles.appContainer}>
+      <Header />
+
+      {/* Wrapper for LocationSelector and DayTimeSelector */}
+      <div style={styles.selectorsContainer}>
+        <LocationSelector onLocationSet={setLocation} />
+        <DayTimeSelector selection={selection} onSelectionChange={setSelection} />
+      </div>
+
+      <p style={styles.selectedLocation}>
         Selected location: {location || 'None'}
       </p>
 
       {isLoading && (
-        <div
-          style={{
-            display: 'flex',
-            height: '50vh',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-          }}
-        >
+        <div style={styles.loadingContainer}>
           <p>Loading weather data...</p>
         </div>
       )}
 
       {error && (
-        <div
-          style={{
-            display: 'flex',
-            height: '50vh',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-          }}
-        >
+        <div style={styles.errorContainer}>
           <p>Error fetching weather data. Please try again later.</p>
         </div>
       )}
 
       {location && data && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            position: 'relative',
-            marginTop: '2rem',
-          }}
-        >
+        <div style={styles.weatherSectionContainer}>
           {/* Left Arrow */}
           <IconButton
             onClick={() => handleScroll('left')}
             disabled={currentIndex === 0}
-            style={{ position: 'absolute', left: '1rem', zIndex: 10 }}
+            style={{ ...styles.arrowButton, ...styles.leftArrow }}
           >
             <ArrowBackIosIcon />
           </IconButton>
 
           {/* Weather Sections */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '2rem',
-              overflow: 'hidden',
-              width: '100%',
-              justifyContent: 'center',
-            }}
-          >
+          <div style={styles.weatherSections}>
             {dates.slice(currentIndex, currentIndex + 2).map((date, index) => {
               const dayData = findDailyData(date);
               return dayData ? (
@@ -142,19 +179,7 @@ const App: React.FC = () => {
                   timeRange={selection.timeRange}
                 />
               ) : (
-                <div
-                  key={index}
-                  style={{
-                    width: '300px',
-                    height: '400px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid #ccc',
-                    borderRadius: '8px',
-                    backgroundColor: '#f5f5f5',
-                  }}
-                >
+                <div style={styles.noData} key={index}>
                   <p>No Data Available</p>
                 </div>
               );
@@ -165,7 +190,7 @@ const App: React.FC = () => {
           <IconButton
             onClick={() => handleScroll('right')}
             disabled={currentIndex >= dateOffsets.length - 2}
-            style={{ position: 'absolute', right: '1rem', zIndex: 10 }}
+            style={{ ...styles.arrowButton, ...styles.rightArrow }}
           >
             <ArrowForwardIosIcon />
           </IconButton>
