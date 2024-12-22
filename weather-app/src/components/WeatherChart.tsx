@@ -1,4 +1,3 @@
-// src/components/WeatherChart.tsx
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -12,25 +11,21 @@ import {
   Legend,
 } from 'chart.js';
 
+// Register required Chart.js components
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend);
+
 interface WeatherChartProps {
   data: {
-    times: string[]; // Time labels (e.g., ['12 PM', '1 PM'])
+    times: string[]; // Time labels (e.g., ['8 AM', '9 AM'])
     temperatures: number[]; // Temperature data points
     winds: number[]; // Wind speed data points
     rainChances: number[]; // Rain chance percentages
   };
 }
 
-// Register required Chart.js components
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend);
-
-/**
- * WeatherChart visualizes hourly weather data using a line chart.
- */
 const WeatherChart: React.FC<WeatherChartProps> = React.memo(({ data }) => {
-  // Define the chart's dataset and configuration
   const chartData = {
-    labels: data.times, // Labels for the x-axis (time of day)
+    labels: data.times, // X-axis labels correspond to filtered times
     datasets: [
       {
         label: 'Temperature (°F)',
@@ -38,7 +33,7 @@ const WeatherChart: React.FC<WeatherChartProps> = React.memo(({ data }) => {
         borderColor: 'red',
         backgroundColor: 'rgba(255, 0, 0, 0.1)',
         fill: true,
-        tension: 0.3, // Smooth line curve
+        tension: 0.3,
         yAxisID: 'y1',
       },
       {
@@ -66,12 +61,12 @@ const WeatherChart: React.FC<WeatherChartProps> = React.memo(({ data }) => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'top' as const }, // Position legend at the top
-      tooltip: { enabled: true }, // Enable tooltips on hover
+      legend: { position: 'top' as const },
+      tooltip: { enabled: true },
     },
     scales: {
       x: {
-        title: { display: true, text: 'Time of Day' }, // Label for the x-axis
+        title: { display: true, text: 'Time of Day' },
       },
       y1: {
         type: 'linear' as const,
@@ -83,7 +78,7 @@ const WeatherChart: React.FC<WeatherChartProps> = React.memo(({ data }) => {
         type: 'linear' as const,
         position: 'right' as const,
         title: { display: true, text: 'Wind Speed (mph)' },
-        grid: { drawOnChartArea: false }, // Prevents grid lines overlap
+        grid: { drawOnChartArea: false },
         beginAtZero: true,
       },
       y3: {

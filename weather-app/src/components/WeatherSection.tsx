@@ -11,10 +11,8 @@ interface WeatherSectionProps {
 }
 
 const WeatherSection: React.FC<WeatherSectionProps> = ({ title, dayData, timeRange }) => {
-  // Filter the hourly data based on the selected time range
   const hourlyData = filterHourlyData(dayData.hours, timeRange);
-
-  // Generate a user-friendly weather message
+  console.log('Filtered Data:', hourlyData); // Debugging log
   const weatherMessage = generateWeatherMessage(dayData.temperature, dayData.rainChance);
 
   return (
@@ -23,8 +21,13 @@ const WeatherSection: React.FC<WeatherSectionProps> = ({ title, dayData, timeRan
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        width: '100%',
-        padding: '1rem 0',
+        justifyContent: 'space-between ',
+        width: '600px', // Fixed width
+        height: '600px', // Fixed height
+        padding: '1rem',
+        backgroundColor: '#f5f5f5',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       }}
     >
       <WeatherCard

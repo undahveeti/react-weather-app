@@ -16,30 +16,47 @@ export const filterHourlyData = (
     winds: number[];
     rainChances: number[];
   } => {
-    if (!hours) return { times: [], temperatures: [], winds: [], rainChances: [] };
+    console.log('Hours Input:', hours); // Log the input hours to debug
   
-    // Define the time ranges
-    const timeRanges: { [key in 'morning' | 'afternoon' | 'evening']: [number, number] } = {
-      morning: [8, 12], // 8 AM to 12 PM
-      afternoon: [12, 17], // 12 PM to 5 PM
-      evening: [17, 21], // 5 PM to 9 PM
+    if (!hours || hours.length === 0) {
+      console.warn('No hourly data available.');
+      return { times: [], temperatures: [], winds: [], rainChances: [] };
+    }
+  
+    // Define time ranges dynamically
+    const timeRanges = {
+      morning: [8, 12], // 6 AM to 9 AM
+      afternoon: [12, 17], // 12 PM to 3 PM
+      evening: [17, 21], // 6 PM to 9 PM
     };
   
     const [startHour, endHour] = timeRanges[timeRange];
   
-    // Filter the hours within the selected range
+    // Filter the hours to get data for the selected time range
     const filteredHours = hours.filter((hour) => {
-      const hourTime = new Date(hour.datetime).getHours();
-      return hourTime >= startHour && hourTime < endHour;
+      // Construct full date-time for accurate interpretation
+      const fullDateTime = `2024-01-01T${hour.datetime}`; // Placeholder date
+      const hourTime = new Date(fullDateTime).getHours();
+      return hourTime >= startHour && hourTime <= endHour;
     });
   
+    console.log('Filtered Hours:', filteredHours); // Log filtered hours to debug
+  
+    // If no data matches the time range, log a warning
+    if (filteredHours.length === 0) {
+      console.warn(`No data found for time range: ${timeRange}`);
+    }
+  
     return {
-      times: filteredHours.map((hour) => formatTime(hour.datetime)),
-      temperatures: filteredHours.map((hour) => hour.temp ?? 0),
-      winds: filteredHours.map((hour) => hour.windspeed ?? 0),
-      rainChances: filteredHours.map((hour) => hour.precipprob ?? 0),
+      times: filteredHours.map((hour) => formatTime(`2024-01-01T${hour.datetime}`)), // Map the filtered times
+      temperatures: filteredHours.map((hour) => hour.temp || 0), // Map the temperatures
+      winds: filteredHours.map((hour) => hour.windspeed || 0), // Map the wind speeds
+      rainChances: filteredHours.map((hour) => hour.precipprob || 0), // Map the rain chances
     };
   };
+  
+  
+
 
 /**
  * Generates a generic weather message based on temperature and rain chance.
@@ -75,10 +92,9 @@ export const generateWeatherMessage = (temperature: number, rainChance: number):
  * @returns Formatted time string.
  */
 const formatTime = (datetime: string): string => {
-  const date = new Date(datetime);
-  let hours = date.getHours();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
-  return `${hours} ${ampm}`;
-};
+    const date = new Date(datetime);
+    let hours = date.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert 0 hours to 12 for 12-hour format
+    return `${hours} ${ampm}`;
+  };

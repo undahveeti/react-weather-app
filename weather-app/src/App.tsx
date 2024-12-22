@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Header from './components/Header';
 import LocationSelector from './components/LocationSelector';
 import DayTimeSelector from './components/DayTimeSelector';
@@ -18,25 +18,18 @@ const App: React.FC = () => {
   });
 
   const { data, isLoading, error } = useWeatherData(location);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Calculate the selected day's date
-  const selectedDate = getDateForDay(selection.day, data?.daily);
-
-  // Calculate the next week's date for the same day
-  const nextWeekDate = selectedDate
-    ? new Date(new Date(selectedDate).getTime() + 7 * 24 * 60 * 60 * 1000) // Add 7 days
-        .toISOString()
-        .split('T')[0] // Format to YYYY-MM-DD
-    : undefined;
-
-  // Helper function to find daily data based on the selected date
-  const findDailyData = (date: string | undefined, weatherData: WeatherData | undefined): DailyData | undefined => {
-    if (!date || !weatherData) return undefined;
-    return weatherData.daily.find((day) => day.date === date);
+  const findDailyData = (offset: number, weatherData: WeatherData | undefined): DailyData | undefined => {
+    if (!weatherData || !weatherData.daily) return undefined;
+    return weatherData.daily[offset];
   };
 
-  const dailyData = findDailyData(selectedDate, data);
-  const nextWeekDailyData = findDailyData(nextWeekDate, data);
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return;
+    const scrollAmount = direction === 'left' ? -300 : 300;
+    scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  };
 
   return (
     <Container>
@@ -76,34 +69,82 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {location && (
+      {location && data && (
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: '2rem',
-            marginTop: '2rem',
-            justifyContent: 'center',
+            position: 'relative',
             width: '100%',
+            overflow: 'hidden',
+            padding: '2rem 0',
           }}
         >
-          {/* This Day Section */}
-          {dailyData && (
-            <WeatherSection
-              title={`This ${selection.day}, ${dailyData.date}`}
-              dayData={dailyData}
-              timeRange={selection.timeRange}
-            />
-          )}
+          <button
+            style={{
+              position: 'absolute',
+              left: '0',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              backgroundColor: '#007BFF',
+              color: '#fff',
+              border: 'none',
+              padding: '1rem',
+              cursor: 'pointer',
+              zIndex: 10,
+            }}
+            onClick={() => handleScroll('left')}
+          >
+            &lt;
+          </button>
 
-          {/* Next Week Section */}
-          {nextWeekDailyData && (
+          <div
+            ref={scrollContainerRef}
+            style={{
+              display: 'flex',
+              gap: '2rem',
+              overflowX: 'scroll',
+              scrollBehavior: 'smooth',
+              padding: '1rem',
+            }}
+          >
             <WeatherSection
-              title={`Next ${selection.day}, ${nextWeekDailyData.date}`}
-              dayData={nextWeekDailyData}
+              title={`This ${selection.day}`}
+              dayData={findDailyData(0, data)}
               timeRange={selection.timeRange}
             />
-          )}
+            <WeatherSection
+              title={`Next ${selection.day}`}
+              dayData={findDailyData(7, data)}
+              timeRange={selection.timeRange}
+            />
+            <WeatherSection
+              title={`${selection.day} (14 days later)`}
+              dayData={findDailyData(14, data)}
+              timeRange={selection.timeRange}
+            />
+            <WeatherSection
+              title={`${selection.day} (21 days later)`}
+              dayData={findDailyData(21, data)}
+              timeRange={selection.timeRange}
+            />
+          </div>
+
+          <button
+            style={{
+              position: 'absolute',
+              right: '0',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              backgroundColor: '#007BFF',
+              color: '#fff',
+              border: 'none',
+              padding: '1rem',
+              cursor: 'pointer',
+              zIndex: 10,
+            }}
+            onClick={() => handleScroll('right')}
+          >
+            &gt;
+          </button>
         </div>
       )}
     </Container>
